@@ -45,7 +45,7 @@ void ParamConverter::ArgumentPool::UpdateArgsByRef()
 		arg = &this->args_by_ref[index];
 		sampgdk_fakeamx_get_cell((int)*arg->addr, &value);
 
-		item = PyTuple_GetItem(arg->object, 0);
+		item = PyList_GetItem(arg->object, 0);
 		if (PyLong_Check(item))
 		{
 			type = 'i';
@@ -70,9 +70,7 @@ void ParamConverter::ArgumentPool::UpdateArgsByRef()
 		new_object = arg_to_py(type, value);
 
 		old_refcnt = Py_REFCNT(arg->object);
-		Py_SET_REFCNT(arg->object, 1); // Hack to set value in tuple
-		PyTuple_SetItem(arg->object, 0, new_object);
-		Py_SET_REFCNT(arg->object, old_refcnt);
+		PyList_SetItem(arg->object, 0, new_object);
 	}
 }
 
@@ -157,11 +155,11 @@ void ParamConverter::amx_pop_params(cell *amx_params, PyObject *tuple)
 
 void append_by_reference(PyObject *tuple, cell *amx_params, Py_ssize_t start_index)
 {
-	Py_ssize_t max_index = PyTuple_Size(tuple) + start_index;
+	Py_ssize_t max_index = PyList_Size(tuple) + start_index;
 
 	for(Py_ssize_t amx_index = start_index; amx_index < max_index; ++amx_index)
 	{
-		PyObject *current_argument = PyTuple_GetItem(tuple, amx_index - start_index);
+		PyObject *current_argument = PyList_GetItem(tuple, amx_index - start_index);
 
 		if(PyBool_Check(current_argument))
 		{
@@ -284,7 +282,7 @@ static bool put_arg(ParamConverter::ArgumentPool* pool, Py_ssize_t index, PyObje
 		);
 		sampgdk_fakeamx_push_string(value, NULL, &pool->amx_args[index + 1]);
 	}
-	else if (PyTuple_Check(arg) && PyObject_Length(arg) == 1)
+	else if (PyList_Check(arg) && PyList_Size(arg) == 1)
 	{
 		append_by_reference(arg, pool->amx_args, index + 1);
 
