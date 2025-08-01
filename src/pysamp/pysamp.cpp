@@ -191,13 +191,13 @@ PyObject* PySAMP::amxParamsToTuple(AMX *amx, const std::string& callback_name, c
 	return tuple;
 }
 
-cell* PySAMP::tupleToAmxParams(PyObject *tuple, bool asReference)
+ParamConverter::ArgumentPool* PySAMP::tupleToAmxParams(PyObject *tuple, bool asReference)
 {
 	if(!PySAMP::isInitialized())
 		return NULL;
 
 	PySAMP::GIL gil;
-	cell* params = ParamConverter::from_tuple(tuple);
+	ParamConverter::ArgumentPool* params = ParamConverter::from_tuple(tuple);
 
 	return params;
 }
