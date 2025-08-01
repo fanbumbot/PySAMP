@@ -146,7 +146,7 @@ void ParamConverter::amx_pop_params(cell *amx_params, PyObject *tuple)
 				Py_ssize_t tuple_index = 0;
 				tuple_index < tuple_size;
 				++tuple_index
-			) {
+				) {
 				sampgdk_fakeamx_pop(amx_params[index + tuple_index + 1]);
 			}
 			index += tuple_size - 1;
@@ -306,12 +306,14 @@ static bool put_arg(ParamConverter::ArgumentPool* pool, Py_ssize_t index, PyObje
 ParamConverter::ArgumentPool* ParamConverter::from_tuple(PyObject *tuple)
 {
 	Py_ssize_t len_tuple = count_args(tuple);
-	ParamConverter::ArgumentPool* args = new ParamConverter::ArgumentPool(len_tuple);
+
+	ArgumentPool *args = new ArgumentPool(len_tuple);
+
 	PyObject *current_argument = NULL;
 
-	for(Py_ssize_t index = 1; index < len_tuple + 1; ++index)
+	for (Py_ssize_t index = 0; index < len_tuple; index++)
 	{
-		current_argument = PyTuple_GetItem(tuple, index - 1);
+		current_argument = PyTuple_GetItem(tuple, index);
 		if (!put_arg(args, index, current_argument))
 		{
 			PyErr_Format(
