@@ -5542,7 +5542,7 @@ WITH_GIL(pysamp_callnativefunction, PyObject *self, PyObject *args)
 	Py_ssize_t len_args = PyTuple_Size(args);
 	arguments = PyTuple_GetSlice(args, 1, len_args);
 
-	cell *amx_params = PySAMP::tupleToAmxParams(arguments);
+	ParamConverter::ArgumentPool* amx_params = PySAMP::tupleToAmxParams(arguments);
 
 	if(amx_params == NULL)
 	{
@@ -5550,11 +5550,12 @@ WITH_GIL(pysamp_callnativefunction, PyObject *self, PyObject *args)
 		return NULL;
 	}
 
-	cell return_value = sampgdk::CallNative(amx_function, amx_params);
+	cell return_value = sampgdk::CallNative(amx_function, amx_params->amx_args);
 
-	ParamConverter::amx_pop_params(amx_params, arguments);
+	amx_params->UpdateArgsByRef();
+	ParamConverter::amx_pop_params(amx_params->amx_args, arguments);
 	Py_DECREF(arguments);
-	delete[] amx_params;
+	delete amx_params;
 
 	return Py_BuildValue("i", return_value);
 }
@@ -5617,7 +5618,7 @@ WITH_GIL(pysamp_callremotefunction, PyObject *self, PyObject *args)
 	arguments = Py_BuildValue("ssO", name, format.c_str(), tail);
 	Py_DECREF(tail);
 
-	cell *amx_params = PySAMP::tupleToAmxParams(arguments);
+	ParamConverter::ArgumentPool* amx_params = PySAMP::tupleToAmxParams(arguments);
 
 	if(amx_params == NULL)
 	{
@@ -5626,11 +5627,12 @@ WITH_GIL(pysamp_callremotefunction, PyObject *self, PyObject *args)
 	}
 
 	AMX_NATIVE amx_function = sampgdk::FindNative("CallRemoteFunction");
-	cell return_value = sampgdk::CallNative(amx_function, amx_params);
+	cell return_value = sampgdk::CallNative(amx_function, amx_params->amx_args);
 
-	ParamConverter::amx_pop_params(amx_params, arguments);
+	amx_params->UpdateArgsByRef();
+	ParamConverter::amx_pop_params(amx_params->amx_args, arguments);
 	Py_DECREF(arguments);
-	delete[] amx_params;
+	delete amx_params;
 
 	return Py_BuildValue("i", return_value);
 }

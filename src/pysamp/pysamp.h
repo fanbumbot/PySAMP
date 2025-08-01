@@ -4,6 +4,7 @@
 #include "limited_api_python.h"
 #include "timer.h"
 #include "callbacks.h"
+#include "param_converter.h"
 
 
 class PyGamemode;
@@ -33,7 +34,7 @@ public:
 	static void registerCallback(const std::string& name, const std::string& format);
 	static PyObject* pyConfig(PyObject *self, PyObject *args, PyObject *kwargs);
 	static PyObject* amxParamsToTuple(AMX *amx, const std::string& callback_name, cell *params);
-	static cell* tupleToAmxParams(PyObject *tuple, bool asReference = false);
+	static ParamConverter::ArgumentPool* tupleToAmxParams(PyObject *tuple, bool asReference = false);
 
 	class GIL
 	{
