@@ -10,7 +10,7 @@ extern "C"
 #include "pysamp.h"
 
 
-static PyObject* arg_to_py(char type, cell value);
+static PyObject* arg_to_py(AMX* amx, char type, cell value);
 
 
 ParamConverter::ArgumentPool::ArgumentPool(int number_of_args)
@@ -67,7 +67,7 @@ void ParamConverter::ArgumentPool::UpdateArgsByRef()
 			continue;
 		}
 
-		new_object = arg_to_py(type, value);
+		new_object = arg_to_py(sampgdk_fakeamx_amx(), type, value);
 
 		old_refcnt = Py_REFCNT(arg->object);
 		PyList_SetItem(arg->object, 0, new_object);
@@ -187,7 +187,7 @@ void append_by_reference(PyObject *tuple, cell *amx_params, Py_ssize_t start_ind
 }
 
 
-static PyObject* arg_to_py(char type, cell value)
+static PyObject* arg_to_py(AMX* amx, char type, cell value)
 {
 	PyObject* argument;
 	switch (type)
@@ -209,7 +209,7 @@ static PyObject* arg_to_py(char type, cell value)
 		cell* phys_addr = NULL;
 
 
-		if (amx_GetAddr(sampgdk_fakeamx_amx(), value, &phys_addr) != AMX_ERR_NONE)
+		if (amx_GetAddr(amx, value, &phys_addr) != AMX_ERR_NONE)
 		{
 			argument = Py_None;
 			break;
@@ -354,7 +354,7 @@ PyObject* ParamConverter::to_tuple(cell* params, const std::string format, AMX* 
 	{
 		const char type = format.at(i);
 		cell param = params[i + 1];
-		PyObject* argument = arg_to_py(type, param);
+		PyObject* argument = arg_to_py(amx, type, param);
 
 		PyTuple_SetItem(arguments, i, argument);
 	}
