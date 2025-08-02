@@ -277,8 +277,9 @@ static bool put_arg(ParamConverter::ArgumentPool* pool, Py_ssize_t index, PyObje
 	}
 	else if (PyUnicode_Check(arg))
 	{
+		const char* errors;
 		const char* value = PyBytes_AsString(
-			PyUnicode_AsUTF8String(arg)
+			PyUnicode_AsEncodedString(arg, PySAMP::getEncoding().c_str(), errors)
 		);
 		sampgdk_fakeamx_push_string(value, NULL, &pool->amx_args[index + 1]);
 	}
