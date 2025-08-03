@@ -36,7 +36,6 @@ void ParamConverter::ArgumentPool::UpdateArgsByRef()
 	ParamConverter::Argument* arg;
 	cell value;
 	PyObject* new_object;
-	int old_refcnt;
 	char type;
 	PyObject* item;
 
@@ -68,8 +67,6 @@ void ParamConverter::ArgumentPool::UpdateArgsByRef()
 		}
 
 		new_object = arg_to_py(sampgdk_fakeamx_amx(), type, value);
-
-		old_refcnt = Py_REFCNT(arg->object);
 		PyList_SetItem(arg->object, 0, new_object);
 	}
 }
@@ -278,10 +275,10 @@ static bool put_arg(ParamConverter::ArgumentPool* pool, Py_ssize_t index, PyObje
 	else if (PyUnicode_Check(arg))
 	{
 		const char* errors;
-		const char* value = PyBytes_AsString(
-			PyUnicode_AsEncodedString(arg, PySAMP::getEncoding().c_str(), errors)
-		);
+		PyObject* encoded = PyUnicode_AsEncodedString(arg, PySAMP::getEncoding().c_str(), errors);
+		const char* value = PyBytes_AsString(encoded);
 		sampgdk_fakeamx_push_string(value, NULL, &pool->amx_args[index + 1]);
+		Py_DECREF(encoded);
 	}
 	else if (PyList_Check(arg) && PyList_Size(arg) == 1)
 	{
